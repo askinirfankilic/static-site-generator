@@ -7,7 +7,7 @@ class LeafNode(HtmlNode):
         self,
         value: Optional[str],
         tag: Optional[str] = None,
-        props: Optional[dict[str, str]] = None,
+        props: Optional[dict[str, Optional[str]]] = None,
     ):
         super().__init__(tag, value, None, props)
 

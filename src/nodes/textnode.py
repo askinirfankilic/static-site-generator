@@ -12,7 +12,6 @@ class TextNode:
             self.text_type == value.text_type
             and self.url == value.url
             and self.text == value.text
-            and self.url == value.url
         )
 
     def __repr__(self):
