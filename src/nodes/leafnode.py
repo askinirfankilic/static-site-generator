@@ -13,7 +13,6 @@ class LeafNode(HtmlNode):
 
     def to_html(self) -> str:
         if self.value is None:
-            print(f"Value: {self.value}")
             raise ValueError("all leaf nodes must have a value")
 
         html = ""
