@@ -8,11 +8,6 @@ def main():
     print(node)
     print(html_node)
 
-    # tag: Optional[str],
-    # value: Optional[str],
-    # children: Optional[list["HtmlNode"]],
-    # props=Optional[dict[str, str]],
-
 
 if __name__ == "__main__":
     main()

@@ -39,18 +39,3 @@ class HtmlNode:
 
     def __repr__(self) -> str:
         return f"HtmlNode({self.tag}, {self.value}, {self.children}, {self.props})"
-
-
-"""
-
-{
-    "href": "https://www.google.com", 
-    "target": "_blank",
-}
-
-
- href="https://www.google.com" target="_blank"
-
-
-
-"""

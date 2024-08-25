@@ -4,40 +4,48 @@ from src.nodes.htmlnode import HtmlNode
 
 
 class TestHtmlNode(unittest.TestCase):
-    test_cases = {
-        "eq_1": {
-            "tag": "p",
-            "value": "an example paragraph",
-            "props": {"href": "www.google.com"},
-        },
-        "eq_2": {
-            "tag": "q",
-            "value": "an example paragraph",
-            "props": {"href": "www.google.com"},
-        },
-        "props_to_html": {
-            "from": {
-                "tag": None,
-                "value": None,
-                "props": {"href": "www.google.com"},
-            },
-            "to": ' href="www.google.com"',
-        },
-    }
-    # href="https://www.google.com" target="_blank"
+    def test_initialization_with_all_params(self):
+        node = HtmlNode(
+            tag="div",
+            value="Content",
+            children=[HtmlNode(tag="p", value="Child")],
+            props={"class": "container"},
+        )
+        self.assertEqual(node.tag, "div")
+        self.assertEqual(node.value, "Content")
+        self.assertEqual(node.children, [HtmlNode(tag="p", value="Child")])
+        self.assertEqual(node.props, {"class": "container"})
 
-    def test_eq(self):
-        node1 = self.generate_node(self.test_cases["eq_1"])
-        node2 = self.generate_node(self.test_cases["eq_2"])
+    def test_initialization_with_no_params(self):
+        node = HtmlNode()
+        self.assertIsNone(node.tag)
+        self.assertIsNone(node.value)
+        self.assertIsNone(node.children)
+        self.assertIsNone(node.props)
+
+    def test_props_to_html_with_props(self):
+        node = HtmlNode(props={"class": "container", "id": "main"})
+        self.assertEqual(node.props_to_html(), ' class="container" id="main"')
+
+    def test_props_to_html_with_no_props(self):
+        node = HtmlNode()
+        self.assertEqual(node.props_to_html(), "")
+
+    def test_eq_method(self):
+        node1 = HtmlNode(tag="div", value="Content", props={"class": "container"})
+        node2 = HtmlNode(tag="div", value="Content", props={"class": "container"})
+        self.assertEqual(node1, node2)
+
+    def test_eq_method_not_equal(self):
+        node1 = HtmlNode(tag="div", value="Content", props={"class": "container"})
+        node2 = HtmlNode(tag="p", value="Different", props={"class": "text"})
         self.assertNotEqual(node1, node2)
 
-    def test_props_to_html(self):
-        node = self.generate_node(self.test_cases["props_to_html"]["from"])
-        html = node.props_to_html()
-        self.assertEqual(html, self.test_cases["props_to_html"]["to"])
-
-    def generate_node(self, case: dict) -> HtmlNode:
-        return HtmlNode(case["tag"], case["value"], None, case["props"])
+    def test_repr_method(self):
+        node = HtmlNode(tag="div", value="Content", props={"class": "container"})
+        self.assertEqual(
+            repr(node), "HtmlNode(div, Content, None, {'class': 'container'})"
+        )
 
 
 if __name__ == "__main__":
