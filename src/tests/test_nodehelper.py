@@ -56,3 +56,19 @@ class TestNodeHelper(unittest.TestCase):
                 },
             ),
         )
+
+    # add test for split
+
+    def test_split_nodes_delimiter(self):
+        old_nodes = [
+            TextNode(text="Hello 'this is a code 'World!", text_type="text"),
+        ]
+        new_nodes = helper.split_nodes_delimiter(old_nodes, "'", helper.text_type_code)
+        self.assertEqual(
+            new_nodes,
+            [
+                TextNode(text="Hello ", text_type="text"),
+                TextNode(text="this is a code ", text_type="code"),
+                TextNode(text="World!", text_type="text"),
+            ],
+        )

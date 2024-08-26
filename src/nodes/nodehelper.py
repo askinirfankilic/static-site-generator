@@ -1,6 +1,12 @@
 from src.nodes.htmlnode import HtmlNode
 from src.nodes.leafnode import LeafNode
-from src.nodes.textnode import TextNode
+from src.nodes.textnode import (
+    TextNode,
+    text_type_text,
+    text_type_bold,
+    text_type_italic,
+    text_type_code,
+)
 
 
 def text_node_to_html_node(text_node: TextNode) -> HtmlNode:
@@ -28,19 +34,26 @@ def text_node_to_html_node(text_node: TextNode) -> HtmlNode:
             raise Exception("Invalid text type")
 
 
-# It should handle each type of TextNode:
-#
-# text_type_text = "text"
-# text_type_bold = "bold"
-# text_type_italic = "italic"
-# text_type_code = "code"
-# text_type_link = "link"
-# text_type_image = "image"
-# If it gets a TextNode that is none of those types, it should raise an exception.
-#
-# text_type_text: This should become a LeafNode with no tag, just a raw text value.
-# text_type_bold: This should become a LeafNode with a "b" tag and the text
-# text_type_italic: "i" tag, text
-# text_type_code: "code" tag, text
-# text_type_link: "a" tag, anchor text, and "href" prop
-# text_type_image: "img" tag, empty string value, "src" and "alt" props ("src" is the image URL, "alt" is the alt text)
+def split_nodes_delimiter(old_nodes: list[TextNode], delimiter: str, text_type: str):
+    new_nodes = []
+    for old_node in old_nodes:
+        if old_node.text_type != text_type_text:
+            new_nodes.append(old_node)
+            continue
+
+        split_nodes = []
+        sections = old_node.text.split(delimiter)
+        if len(sections) % 2 == 0:
+            raise ValueError("Invalid markdown, formatted section not closed")
+
+        for i in range(len(sections)):
+            if sections[i] == "":
+                continue
+            if i % 2 == 0:
+                split_nodes.append(TextNode(sections[i], text_type_text))
+            else:
+                split_nodes.append(TextNode(sections[i], text_type))
+
+        new_nodes.extend(split_nodes)
+
+    return new_nodes
