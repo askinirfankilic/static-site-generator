@@ -72,3 +72,34 @@ class TestNodeHelper(unittest.TestCase):
                 TextNode(text="World!", text_type="text"),
             ],
         )
+
+    def test_extract_markdown_images(self):
+        text = """
+        # Title
+        ![alt text](https://example.com/image.png)
+        ![alt text](https://example.com/image2.png)
+        """
+        images = helper.extract_markdown_images(text)
+        self.assertEqual(
+            images,
+            [
+                ("alt text", "https://example.com/image.png"),
+                ("alt text", "https://example.com/image2.png"),
+            ],
+        )
+
+    def test_extract_markdown_links(self):
+        text = """
+        # Title another things
+        [alt example1 text](www.example.com) some things jdoejd:aa, ..
+        [alt example2 text](https://example2.com)
+        """
+
+        images = helper.extract_markdown_links(text)
+        self.assertEqual(
+            images,
+            [
+                ("alt example1 text", "www.example.com"),
+                ("alt example2 text", "https://example2.com"),
+            ],
+        )
