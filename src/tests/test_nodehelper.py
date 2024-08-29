@@ -103,3 +103,22 @@ class TestNodeHelper(unittest.TestCase):
                 ("alt example2 text", "https://example2.com"),
             ],
         )
+
+    def test_split_nodes_link(self):
+        node = TextNode(
+            "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)",
+            helper.text_type_text,
+        )
+
+        test_case = [
+            TextNode("This is text with a link ", helper.text_type_text),
+            TextNode("to boot dev", helper.text_type_link, "https://www.boot.dev"),
+            TextNode(" and ", helper.text_type_text),
+            TextNode(
+                "to youtube",
+                helper.text_type_link,
+                "https://www.youtube.com/@bootdotdev",
+            ),
+        ]
+        splitted = helper.split_nodes_link([node])
+        self.assertEqual(splitted, test_case)

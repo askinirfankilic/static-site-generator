@@ -7,6 +7,8 @@ from src.nodes.textnode import (
     text_type_bold,
     text_type_italic,
     text_type_code,
+    text_type_link,
+    text_type_image,
 )
 
 
@@ -36,7 +38,7 @@ def text_node_to_html_node(text_node: TextNode) -> HtmlNode:
 
 
 def split_nodes_delimiter(old_nodes: list[TextNode], delimiter: str, text_type: str):
-    new_nodes = []
+    new_nodes: list[TextNode] = []
     for old_node in old_nodes:
         if old_node.text_type != text_type_text:
             new_nodes.append(old_node)
@@ -70,3 +72,44 @@ def extract_markdown_links(text):
     expression = r"(?<!!)\[(.*?)\]\((.*?)\)"
     val = re.findall(expression, text)
     return val
+
+
+def split_nodes_link(old_nodes):
+    new_nodes: list[TextNode] = []
+
+    for old_node in old_nodes:
+        if old_node.text_type != text_type_text:
+            new_nodes.append(old_node)
+
+        extracted_links = extract_markdown_links(old_node.text)
+        delimiters = []
+        for link in extracted_links:
+            delimiter = r"\[" + link[0] + r"\]\(" + link[1] + r"\)"
+            delimiter = f"({delimiter})"
+            delimiters.append(delimiter)
+
+        regex_pattern = "|".join(delimiters)
+        split_text = re.split(regex_pattern, old_node.text)
+        split_text = [part for part in split_text if part]
+        for text in split_text:
+            finded = False
+            for tup in extracted_links:
+                if finded:
+                    break
+
+                for i in tup:
+                    if i in text:
+                        finded = True
+                        new_nodes.append(TextNode(tup[0], text_type_link, tup[1]))
+                        break
+
+            if not finded:
+                new_nodes.append(TextNode(text, text_type_text))
+
+    return new_nodes
+
+
+# def split_nodes_image(old_nodes):
+#     new_nodes: list[TextNode] = []
+#
+#     return new_nodes
