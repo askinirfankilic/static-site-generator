@@ -1,9 +1,17 @@
 # write some unit tests for the nodehelper module
+from sys import exception
 import unittest
 
 import src.nodes.nodehelper as helper
 from src.nodes.leafnode import LeafNode
 from src.nodes.textnode import TextNode
+
+
+def helper_print_collection_vert(collection: list):
+    print("\n")
+    for elem in collection:
+        print(elem)
+    print("\n")
 
 
 class TestNodeHelper(unittest.TestCase):
@@ -134,10 +142,6 @@ class TestNodeHelper(unittest.TestCase):
         splitted = helper.split_nodes_image([node])
         self.assertEqual(splitted, test_case)
 
-    # write unit tests for text_to_text_node(text)
-
-    # write unit tests for text_to_text_node(text)
-
     def test_text_to_text_node(self):
         text = "Hello, World!"
         nodes = helper.text_to_text_node(text)
@@ -209,5 +213,42 @@ class TestNodeHelper(unittest.TestCase):
                     text_type="link",
                     url="https://example.com",
                 )
+            ],
+        )
+
+    # create text_to_text_node tests for multiple text nodes as test cases
+    def test_text_to_text_node_multiple(self):
+        text = "Hello, **World!** *Hello, World!* `Hello, World!`"
+        nodes = helper.text_to_text_node(text)
+        self.assertEqual(
+            nodes,
+            [
+                TextNode(text="Hello, ", text_type="text"),
+                TextNode(text="World!", text_type="bold"),
+                TextNode(text=" ", text_type="text"),
+                TextNode(text="Hello, World!", text_type="italic"),
+                TextNode(text=" ", text_type="text"),
+                TextNode(text="Hello, World!", text_type="code"),
+            ],
+        )
+
+    def test_text_to_text_node_multiple_complex(self):
+        text = "Hello, **World!** *Hello, World!* `Hello, World!` [Hello, World!](https://example.com)"
+        nodes = helper.text_to_text_node(text)
+        self.assertEqual(
+            nodes,
+            [
+                TextNode(text="Hello, ", text_type="text"),
+                TextNode(text="World!", text_type="bold"),
+                TextNode(text=" ", text_type="text"),
+                TextNode(text="Hello, World!", text_type="italic"),
+                TextNode(text=" ", text_type="text"),
+                TextNode(text="Hello, World!", text_type="code"),
+                TextNode(text=" ", text_type="text"),
+                TextNode(
+                    text="Hello, World!",
+                    text_type="link",
+                    url="https://example.com",
+                ),
             ],
         )
