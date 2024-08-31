@@ -57,8 +57,6 @@ class TestNodeHelper(unittest.TestCase):
             ),
         )
 
-    # add test for split
-
     def test_split_nodes_delimiter(self):
         old_nodes = [
             TextNode(text="Hello 'this is a code 'World!", text_type="text"),
@@ -135,3 +133,81 @@ class TestNodeHelper(unittest.TestCase):
         ]
         splitted = helper.split_nodes_image([node])
         self.assertEqual(splitted, test_case)
+
+    # write unit tests for text_to_text_node(text)
+
+    # write unit tests for text_to_text_node(text)
+
+    def test_text_to_text_node(self):
+        text = "Hello, World!"
+        nodes = helper.text_to_text_node(text)
+        self.assertEqual(nodes, [TextNode(text=text, text_type="text")])
+
+    def test_text_to_text_node_bold(self):
+        text = "**Hello, World!**"
+        nodes = helper.text_to_text_node(text)
+        self.assertEqual(nodes, [TextNode(text="Hello, World!", text_type="bold")])
+
+    def test_text_to_text_node_italic(self):
+        text = "*Hello, World!*"
+        nodes = helper.text_to_text_node(text)
+        self.assertEqual(nodes, [TextNode(text="Hello, World!", text_type="italic")])
+
+    def test_text_to_text_node_code(self):
+        text = "`Hello, World!`"
+        nodes = helper.text_to_text_node(text)
+        self.assertEqual(nodes, [TextNode(text="Hello, World!", text_type="code")])
+
+    def test_text_to_text_node_link(self):
+        text = "[Hello, World!](https://example.com)"
+        nodes = helper.text_to_text_node(text)
+        self.assertEqual(
+            nodes,
+            [
+                TextNode(
+                    text="Hello, World!", text_type="link", url="https://example.com"
+                )
+            ],
+        )
+
+    def test_text_to_text_node_image(self):
+        text = "![Hello, World!](https://example.com/image.png)"
+        nodes = helper.text_to_text_node(text)
+        self.assertEqual(
+            nodes,
+            [
+                TextNode(
+                    text="Hello, World!",
+                    text_type="image",
+                    url="https://example.com/image.png",
+                )
+            ],
+        )
+
+    def test_text_to_text_node_image_no_alt(self):
+        text = "![](https://example.com/image.png)"
+        nodes = helper.text_to_text_node(text)
+        self.assertEqual(
+            nodes,
+            [
+                TextNode(
+                    text="",
+                    text_type="image",
+                    url="https://example.com/image.png",
+                )
+            ],
+        )
+
+    def test_text_to_text_node_link_no_alt(self):
+        text = "[](https://example.com)"
+        nodes = helper.text_to_text_node(text)
+        self.assertEqual(
+            nodes,
+            [
+                TextNode(
+                    text="",
+                    text_type="link",
+                    url="https://example.com",
+                )
+            ],
+        )

@@ -62,26 +62,19 @@ def split_nodes_delimiter(old_nodes: list[TextNode], delimiter: str, text_type: 
     return new_nodes
 
 
-def extract_markdown_images(text):
-    expression = r"!\[(.*?)\]\((.*?)\)"
-    val = re.findall(expression, text)
-    return val
-
-
-def extract_markdown_links(text):
-    expression = r"(?<!!)\[(.*?)\]\((.*?)\)"
-    val = re.findall(expression, text)
-    return val
-
-
 def split_nodes_link(old_nodes):
     new_nodes: list[TextNode] = []
 
     for old_node in old_nodes:
         if old_node.text_type != text_type_text:
             new_nodes.append(old_node)
+            continue
 
         extracted_links = extract_markdown_links(old_node.text)
+        if extracted_links is None or len(extracted_links) == 0:
+            new_nodes.append(old_node)
+            continue
+
         delimiters = append_delimiters(extracted_links, is_image=False)
 
         generate_nodes(
@@ -101,8 +94,13 @@ def split_nodes_image(old_nodes):
     for old_node in old_nodes:
         if old_node.text_type != text_type_text:
             new_nodes.append(old_node)
+            continue
 
         extracted_links = extract_markdown_images(old_node.text)
+        if extracted_links is None or len(extracted_links) == 0:
+            new_nodes.append(old_node)
+            continue
+
         delimiters = append_delimiters(extracted_links, is_image=True)
 
         generate_nodes(
@@ -147,3 +145,38 @@ def generate_nodes(new_nodes, old_node, text_type, delimiters, extracted_links):
 
         if not finded:
             new_nodes.append(TextNode(text, text_type_text))
+
+
+def extract_markdown_images(text):
+    expression = r"!\[(.*?)\]\((.*?)\)"
+    val = re.findall(expression, text)
+    return val
+
+
+def extract_markdown_links(text):
+    expression = r"(?<!!)\[(.*?)\]\((.*?)\)"
+    val = re.findall(expression, text)
+    return val
+
+
+# i want you to impement text_to_text_node function. this function will take a string and return a list of TextNode objects.
+# the sstring will contain markdown text. the markdown text will contain the following elements:
+# - text: this is the default type. it will be plain text.
+# - **bold text**: this will be bold text.
+# - *italic text*: this will be italic text.
+# - `code text`: this will be code text.
+# - [link text](www.example.com): this will be a likn.
+# - ![alt text](www.google.com/image.png): this will be an image.
+# you can assume that the markdown text will be valid.
+# you should use split functions to split the text into different parts and then create TextNode objects.  you can use the split_nodes_delimiter function to split the text into different parts. you can use the split_nodes_link and split_nodes_image functions to split the text into different parts.
+# you can use the text_node_to_html_node function to convert a TextNode object to a HtmlNode object.
+
+
+def text_to_text_node(text):
+    nodes = [TextNode(text=text, text_type=text_type_text)]
+    nodes = split_nodes_delimiter(nodes, "**", text_type_bold)
+    nodes = split_nodes_delimiter(nodes, "*", text_type_italic)
+    nodes = split_nodes_delimiter(nodes, "`", text_type_code)
+    nodes = split_nodes_link(nodes)
+    nodes = split_nodes_image(nodes)
+    return nodes
