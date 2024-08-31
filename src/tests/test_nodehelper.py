@@ -122,3 +122,16 @@ class TestNodeHelper(unittest.TestCase):
         ]
         splitted = helper.split_nodes_link([node])
         self.assertEqual(splitted, test_case)
+
+    def test_split_nodes_image(self):
+        node = TextNode(
+            "This is text with an image ![insert image in there](src/image.png)",
+            helper.text_type_text,
+        )
+
+        test_case = [
+            TextNode("This is text with an image ", helper.text_type_text),
+            TextNode("insert image in there", helper.text_type_image, "src/image.png"),
+        ]
+        splitted = helper.split_nodes_image([node])
+        self.assertEqual(splitted, test_case)

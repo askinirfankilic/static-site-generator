@@ -82,34 +82,68 @@ def split_nodes_link(old_nodes):
             new_nodes.append(old_node)
 
         extracted_links = extract_markdown_links(old_node.text)
-        delimiters = []
-        for link in extracted_links:
-            delimiter = r"\[" + link[0] + r"\]\(" + link[1] + r"\)"
-            delimiter = f"({delimiter})"
-            delimiters.append(delimiter)
+        delimiters = append_delimiters(extracted_links, is_image=False)
 
-        regex_pattern = "|".join(delimiters)
-        split_text = re.split(regex_pattern, old_node.text)
-        split_text = [part for part in split_text if part]
-        for text in split_text:
-            finded = False
-            for tup in extracted_links:
-                if finded:
-                    break
-
-                for i in tup:
-                    if i in text:
-                        finded = True
-                        new_nodes.append(TextNode(tup[0], text_type_link, tup[1]))
-                        break
-
-            if not finded:
-                new_nodes.append(TextNode(text, text_type_text))
+        generate_nodes(
+            new_nodes,
+            old_node,
+            text_type_link,
+            delimiters,
+            extracted_links,
+        )
 
     return new_nodes
 
 
-# def split_nodes_image(old_nodes):
-#     new_nodes: list[TextNode] = []
-#
-#     return new_nodes
+def split_nodes_image(old_nodes):
+    new_nodes: list[TextNode] = []
+
+    for old_node in old_nodes:
+        if old_node.text_type != text_type_text:
+            new_nodes.append(old_node)
+
+        extracted_links = extract_markdown_images(old_node.text)
+        delimiters = append_delimiters(extracted_links, is_image=True)
+
+        generate_nodes(
+            new_nodes,
+            old_node,
+            text_type_image,
+            delimiters,
+            extracted_links,
+        )
+
+    return new_nodes
+
+
+def append_delimiters(extracted_links, is_image=False):
+    delimiter_prefix = r""
+    if is_image:
+        delimiter_prefix = r"!"
+
+    delimiters = []
+    for link in extracted_links:
+        delimiter = delimiter_prefix + r"\[" + link[0] + r"\]\(" + link[1] + r"\)"
+        delimiter = f"({delimiter})"
+        delimiters.append(delimiter)
+    return delimiters
+
+
+def generate_nodes(new_nodes, old_node, text_type, delimiters, extracted_links):
+    regex_pattern = "|".join(delimiters)
+    split_text = re.split(regex_pattern, old_node.text)
+    split_text = [part for part in split_text if part]
+    for text in split_text:
+        finded = False
+        for tup in extracted_links:
+            if finded:
+                break
+
+            for i in tup:
+                if i in text:
+                    finded = True
+                    new_nodes.append(TextNode(tup[0], text_type, tup[1]))
+                    break
+
+        if not finded:
+            new_nodes.append(TextNode(text, text_type_text))
