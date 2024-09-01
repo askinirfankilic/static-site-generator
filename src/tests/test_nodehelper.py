@@ -252,3 +252,54 @@ class TestNodeHelper(unittest.TestCase):
                 ),
             ],
         )
+
+    def test_markdown_to_blocks(self):
+        markdown = """
+# Title
+This is a text block.
+"""
+        blocks = helper.markdown_to_blocks(markdown)
+        self.assertEqual(blocks, ["# Title", "This is a text block."])
+
+    def test_markdown_to_blocks_list(self):
+        markdown = """
+- item1
+- item2
+"""
+        blocks = helper.markdown_to_blocks(markdown)
+        self.assertEqual(blocks, ["- item1", "- item2"])
+
+    def test_markdown_to_blocks_code_block(self):
+        markdown = """
+code block line 1
+code block line 2
+        """
+        blocks = helper.markdown_to_blocks(markdown)
+        self.assertEqual(blocks, ["code block line 1", "code block line 2"])
+
+    def test_markdown_to_blocks_multiple_blocks(self):
+        markdown = """
+# Title
+This is a text block.
+
+- item1
+- item2
+
+code block line 1
+code block line 2
+
+        """
+
+        print(markdown)
+        blocks = helper.markdown_to_blocks(markdown)
+        self.assertEqual(
+            blocks,
+            [
+                "# Title",
+                "This is a text block.",
+                "- item1",
+                "- item2",
+                "code block line 1",
+                "code block line 2",
+            ],
+        )

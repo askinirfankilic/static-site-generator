@@ -62,7 +62,7 @@ def split_nodes_delimiter(old_nodes: list[TextNode], delimiter: str, text_type: 
     return new_nodes
 
 
-def split_nodes_link(old_nodes):
+def split_nodes_link(old_nodes: list[TextNode]) -> list[TextNode]:
     new_nodes: list[TextNode] = []
 
     for old_node in old_nodes:
@@ -88,7 +88,7 @@ def split_nodes_link(old_nodes):
     return new_nodes
 
 
-def split_nodes_image(old_nodes):
+def split_nodes_image(old_nodes: list[TextNode]) -> list[TextNode]:
     new_nodes: list[TextNode] = []
 
     for old_node in old_nodes:
@@ -114,7 +114,7 @@ def split_nodes_image(old_nodes):
     return new_nodes
 
 
-def append_delimiters(extracted_links, is_image=False):
+def append_delimiters(extracted_links: list[tuple[str, str]], is_image: bool = False):
     delimiter_prefix = r""
     if is_image:
         delimiter_prefix = r"!"
@@ -127,7 +127,13 @@ def append_delimiters(extracted_links, is_image=False):
     return delimiters
 
 
-def generate_nodes(new_nodes, old_node, text_type, delimiters, extracted_links):
+def generate_nodes(
+    new_nodes: list[TextNode],
+    old_node: TextNode,
+    text_type: str,
+    delimiters: list[str],
+    extracted_links: list[tuple[str, str]],
+):
     regex_pattern = "|".join(delimiters)
     split_text = re.split(regex_pattern, old_node.text)
     split_text = [part for part in split_text if part]
@@ -147,32 +153,19 @@ def generate_nodes(new_nodes, old_node, text_type, delimiters, extracted_links):
             new_nodes.append(TextNode(text, text_type_text))
 
 
-def extract_markdown_images(text):
+def extract_markdown_images(text: str) -> list[tuple[str, str]]:
     expression = r"!\[(.*?)\]\((.*?)\)"
     val = re.findall(expression, text)
     return val
 
 
-def extract_markdown_links(text):
+def extract_markdown_links(text: str) -> list[tuple[str, str]]:
     expression = r"(?<!!)\[(.*?)\]\((.*?)\)"
     val = re.findall(expression, text)
     return val
 
 
-# i want you to impement text_to_text_node function. this function will take a string and return a list of TextNode objects.
-# the sstring will contain markdown text. the markdown text will contain the following elements:
-# - text: this is the default type. it will be plain text.
-# - **bold text**: this will be bold text.
-# - *italic text*: this will be italic text.
-# - `code text`: this will be code text.
-# - [link text](www.example.com): this will be a likn.
-# - ![alt text](www.google.com/image.png): this will be an image.
-# you can assume that the markdown text will be valid.
-# you should use split functions to split the text into different parts and then create TextNode objects.  you can use the split_nodes_delimiter function to split the text into different parts. you can use the split_nodes_link and split_nodes_image functions to split the text into different parts.
-# you can use the text_node_to_html_node function to convert a TextNode object to a HtmlNode object.
-
-
-def text_to_text_node(text):
+def text_to_text_node(text: str) -> list[TextNode]:
     nodes = [TextNode(text=text, text_type=text_type_text)]
     nodes = split_nodes_delimiter(nodes, "**", text_type_bold)
     nodes = split_nodes_delimiter(nodes, "*", text_type_italic)
@@ -180,3 +173,12 @@ def text_to_text_node(text):
     nodes = split_nodes_link(nodes)
     nodes = split_nodes_image(nodes)
     return nodes
+
+
+def markdown_to_blocks(markdown: str) -> list[str]:
+    # this function should remove any empty lines and any whitespaces from the
+    # beginning and end of each block
+
+    blocks = markdown.split("\n")
+    blocks = [block.strip() for block in blocks if block.strip()]
+    return blocks
