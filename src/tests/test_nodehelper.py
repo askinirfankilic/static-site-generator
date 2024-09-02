@@ -255,51 +255,75 @@ class TestNodeHelper(unittest.TestCase):
 
     def test_markdown_to_blocks(self):
         markdown = """
-# Title
-This is a text block.
+# This is a heading
+
+This is a paragraph of text. It has some **bold** and *italic* words inside of it.
+
+* This is the first list item in a list block
+* This is a list item
+* This is another list item
 """
-        blocks = helper.markdown_to_blocks(markdown)
-        self.assertEqual(blocks, ["# Title", "This is a text block."])
-
-    def test_markdown_to_blocks_list(self):
-        markdown = """
-- item1
-- item2
-"""
-        blocks = helper.markdown_to_blocks(markdown)
-        self.assertEqual(blocks, ["- item1", "- item2"])
-
-    def test_markdown_to_blocks_code_block(self):
-        markdown = """
-code block line 1
-code block line 2
-        """
-        blocks = helper.markdown_to_blocks(markdown)
-        self.assertEqual(blocks, ["code block line 1", "code block line 2"])
-
-    def test_markdown_to_blocks_multiple_blocks(self):
-        markdown = """
-# Title
-This is a text block.
-
-- item1
-- item2
-
-code block line 1
-code block line 2
-
-        """
-
-        print(markdown)
         blocks = helper.markdown_to_blocks(markdown)
         self.assertEqual(
             blocks,
             [
-                "# Title",
-                "This is a text block.",
-                "- item1",
-                "- item2",
-                "code block line 1",
-                "code block line 2",
+                "# This is a heading",
+                "This is a paragraph of text. It has some **bold** and *italic* words inside of it.",
+                "* This is the first list item in a list block\n* This is a list item\n* This is another list item",
             ],
         )
+
+    def test_markdown_to_blocks_multiple_blank_lines(self):
+        markdown = """
+# Heading 1
+
+
+This is a paragraph with multiple blank lines above.
+
+* List item 1
+* List item 2
+
+Another paragraph with extra spaces around the blank lines.
+   
+"""
+        blocks = helper.markdown_to_blocks(markdown)
+        self.assertEqual(
+            blocks,
+            [
+                "# Heading 1",
+                "This is a paragraph with multiple blank lines above.",
+                "* List item 1\n* List item 2",
+                "Another paragraph with extra spaces around the blank lines.",
+            ],
+        )
+
+    def test_markdown_to_blocks_no_blank_lines(self):
+        markdown = """# Heading 1
+This is a paragraph directly under the heading without blank lines.
+* List item 1
+* List item 2"""
+
+        blocks = helper.markdown_to_blocks(markdown)
+        self.assertEqual(
+            blocks,
+            [
+                "# Heading 1\nThis is a paragraph directly under the heading without blank lines.\n* List item 1\n* List item 2"
+            ],
+        )
+
+    def test_block_to_block_type_code_simple(self):
+        block = """```
+print("Hello, world!")
+```"""
+        block_type = helper.block_to_block_type(block)
+        self.assertEqual(block_type, helper.block_type_code)
+
+    def test_block_to_block_type_heading(self):
+        block = """#### Heading"""
+        block_type = helper.block_to_block_type(block)
+        self.assertEqual(block_type, helper.block_type_heading)
+
+    def test_block_to_block_type_quote(self):
+        block = "> This is a test string."
+        block_type = helper.block_to_block_type(block)
+        self.assertEqual(block_type, helper.block_type_quote)

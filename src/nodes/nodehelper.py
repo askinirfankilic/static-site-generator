@@ -11,6 +11,13 @@ from src.nodes.textnode import (
     text_type_image,
 )
 
+block_type_paragraph = "paragraph"
+block_type_heading = "heading"
+block_type_code = "code"
+block_type_quote = "quote"
+block_type_unordered_list = "unordered_list"
+block_type_ordered_list = "ordered_list"
+
 
 def text_node_to_html_node(text_node: TextNode) -> HtmlNode:
     match text_node.text_type:
@@ -176,9 +183,19 @@ def text_to_text_node(text: str) -> list[TextNode]:
 
 
 def markdown_to_blocks(markdown: str) -> list[str]:
-    # this function should remove any empty lines and any whitespaces from the
-    # beginning and end of each block
-
-    blocks = markdown.split("\n")
+    blocks = re.split(r"\n\s*\n", markdown)
     blocks = [block.strip() for block in blocks if block.strip()]
     return blocks
+
+
+def block_to_block_type(block: str) -> str:
+    if re.match(r"^#{1,6} .*", block, re.MULTILINE):
+        return block_type_heading
+
+    if len(re.findall(r"```$", block, re.MULTILINE)) == 2:
+        return block_type_code
+
+    if re.match(r"^> ", block, re.MULTILINE):
+        return block_type_quote
+
+    return block_type_paragraph
