@@ -38,4 +38,4 @@ class HtmlNode:
         )
 
     def __repr__(self) -> str:
-        return f"HtmlNode({self.tag}, {self.value}, {self.children}, {self.props})"
+        return f"HtmlNode({self.tag},\n{self.value},\n{self.children},\n{self.props})"

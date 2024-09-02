@@ -203,4 +203,163 @@ def block_to_block_type(block: str) -> str:
     if all(re.match(r"^[-\*] ", line, re.MULTILINE) for line in lines):
         return block_type_unordered_list
 
+    is_ordered_counter = 0
+    for i, line in enumerate(lines):
+        if line.startswith(f"{i+1}. "):
+            is_ordered_counter += 1
+        else:
+            break
+
+    if is_ordered_counter == len(lines):
+        return block_type_ordered_list
+
     return block_type_paragraph
+
+
+def markdown_to_html_node(markdown: str) -> HtmlNode:
+    blocks = markdown_to_blocks(markdown)
+    nodes = []
+    for block in blocks:
+        block_type = block_to_block_type(block)
+        new_node = generate_html_node_from_block(block, block_type)
+        nodes.append(new_node)
+
+    return HtmlNode(tag="div", children=nodes)
+
+
+def generate_html_node_from_block(block: str, block_type: str) -> HtmlNode:
+    removed_block = remove_block_type_identifier(block, block_type)
+    match block_type:
+        case "paragraph":
+            return paragraph_to_html_node(removed_block)
+        case "heading":
+            match = re.match(r"^#{1,6} ", block)
+            if match is None:
+                raise ValueError("Invalid heading")
+
+            indicator = match.group()
+            return heading_to_html_node(removed_block, indicator)
+        case "quote":
+            return quote_to_html_node(removed_block)
+        case "code":
+            return code_to_html_node(removed_block)
+        case "unordered_list":
+            return unordered_list_to_html_node(removed_block)
+        case "ordered_list":
+            return ordered_list_to_html_node(removed_block)
+        case _:
+            raise Exception("invalid block type")
+
+
+def paragraph_to_html_node(value: str) -> HtmlNode:
+    text_nodes = text_to_text_node(value)
+    html_nodes = [text_node_to_html_node(n) for n in text_nodes]
+    block_html = HtmlNode(tag="p", value=value, children=html_nodes)
+    return block_html
+
+
+def heading_to_html_node(value: str, indicator: str) -> HtmlNode:
+    text_nodes = text_to_text_node(value)
+    heading_size = indicator.count("#")
+    if heading_size == 0:
+        raise ValueError("Invalid heading size")
+
+    if len(text_nodes) == 1:
+        block_html = HtmlNode(tag=f"h{heading_size}", value=value)
+    else:
+        html_nodes = [text_node_to_html_node(n) for n in text_nodes]
+        block_html = HtmlNode(tag=f"h{heading_size}", value=value, children=html_nodes)
+
+    return block_html
+
+
+def quote_to_html_node(value: str) -> HtmlNode:
+    text_nodes = text_to_text_node(value)
+    html_nodes = [text_node_to_html_node(n) for n in text_nodes]
+    if len(text_nodes) == 1:
+        block_html = HtmlNode(tag="blockquote", value=value)
+    else:
+        block_html = HtmlNode(tag="blockquote", value=value, children=html_nodes)
+    return block_html
+
+
+def code_to_html_node(value: str) -> HtmlNode:
+    text_nodes = text_to_text_node(value)
+    html_nodes = [text_node_to_html_node(n) for n in text_nodes]
+    code_html = None
+    if len(text_nodes) == 1:
+        code_html = HtmlNode(tag="code", value=value)
+    else:
+        code_html = HtmlNode(tag="code", value=value, children=html_nodes)
+
+    pre_parent = HtmlNode(tag="pre", children=[code_html])
+    return pre_parent
+
+
+def unordered_list_to_html_node(value: str) -> HtmlNode:
+    children = []
+    lines = value.splitlines()
+
+    for line in lines:
+        text_nodes = text_to_text_node(line)
+        html_nodes = [text_node_to_html_node(n) for n in text_nodes]
+        li_html = HtmlNode(tag="li", value=line, children=html_nodes)
+        children.append(li_html)
+
+    block_html = HtmlNode(tag="ul", value=None, children=children)
+    return block_html
+
+
+def ordered_list_to_html_node(value: str) -> HtmlNode:
+    children = []
+    lines = value.splitlines()
+
+    for line in lines:
+        text_nodes = text_to_text_node(line)
+        html_nodes = [text_node_to_html_node(n) for n in text_nodes]
+        li_html = HtmlNode(tag="li", value=line, children=html_nodes)
+        children.append(li_html)
+
+    block_html = HtmlNode(tag="ol", value=None, children=children)
+    return block_html
+
+
+def remove_block_type_identifier(block: str, block_type: str) -> str:
+    match block_type:
+        case "heading":
+            return re.sub(r"^#{1,6} ", "", block, count=0, flags=re.MULTILINE)
+
+        case "code":
+            return re.sub(r"```$", "", block, count=2, flags=re.MULTILINE)
+
+        case "quote":
+            return re.sub(r"^> ", "", block, count=1, flags=re.MULTILINE)
+
+        case "unordered_list":
+            lines = block.splitlines()
+            return "\n".join(
+                list(
+                    map(
+                        lambda line: re.sub(
+                            r"[-\*] ", "", line, count=1, flags=re.MULTILINE
+                        ),
+                        lines,
+                    )
+                )
+            )
+        case "ordered_list":
+            lines = block.splitlines()
+            return "\n".join(
+                list(
+                    map(
+                        lambda line: re.sub(
+                            r"[0-9]\. ", "", line, count=1, flags=re.MULTILINE
+                        ),
+                        lines,
+                    )
+                )
+            )
+        case "paragraph":
+            return block
+        case _:  # assumed as paragraph
+            raise Exception("Invalid block type")

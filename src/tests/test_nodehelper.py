@@ -2,6 +2,7 @@
 from sys import exception
 import unittest
 
+from src.nodes.htmlnode import HtmlNode
 import src.nodes.nodehelper as helper
 from src.nodes.leafnode import LeafNode
 from src.nodes.textnode import TextNode
@@ -337,3 +338,82 @@ print("Hello, world!")
         block = "* This is a test string.\n*This is another test string."
         block_type = helper.block_to_block_type(block)
         self.assertNotEqual(block_type, helper.block_type_unordered_list)
+
+    def test_block_to_block_type_ordered_list(self):
+        block = "1. This is a no1.\n2. This is a no2."
+        block_type = helper.block_to_block_type(block)
+        self.assertEqual(block_type, helper.block_type_ordered_list)
+
+    def test_block_to_block_type_ordered_list_mistake(self):
+        block = "1. This is a no1.\n2.This is a no2."
+        block_type = helper.block_to_block_type(block)
+        self.assertNotEqual(block_type, helper.block_type_ordered_list)
+
+    def test_block_to_block_type_paragraph(self):
+        block = (
+            "This is a paragraph of text.\n It has some things going on.  Like that."
+        )
+        block_type = helper.block_to_block_type(block)
+        self.assertEqual(block_type, helper.block_type_paragraph)
+
+    def test_markdown_to_html_node_heading(self):
+        markdown = """
+# This is a heading
+"""
+        node = helper.markdown_to_html_node(markdown)
+        self.assertEqual(
+            node,
+            HtmlNode(
+                tag="div", children=[HtmlNode(tag="h1", value="This is a heading")]
+            ),
+        )
+
+    def test_markdown_to_html_node_quote(self):
+        markdown = """
+> This is a quote\nThis is the other line
+
+## This is a heading but little bit smaller
+"""
+        node = helper.markdown_to_html_node(markdown)
+        self.assertEqual(
+            node,
+            HtmlNode(
+                tag="div",
+                children=[
+                    HtmlNode(
+                        tag="blockquote",
+                        value="This is a quote\nThis is the other line",
+                    ),
+                    HtmlNode(
+                        tag="h2", value="This is a heading but little bit smaller"
+                    ),
+                ],
+            ),
+        )
+
+    def test_markdown_to_html_node_code(self):
+        markdown = """```
+for i in something: print(i)
+```
+
+# This is a header
+
+
+> This is a quote
+"""
+        node = helper.markdown_to_html_node(markdown)
+        expected = HtmlNode(
+            tag="div",
+            children=[
+                HtmlNode(
+                    tag="pre",
+                    children=[
+                        HtmlNode(tag="code", value="\nfor i in something: print(i)\n"),
+                    ],
+                ),
+                HtmlNode(tag="h1", value="This is a header"),
+                HtmlNode(tag="blockquote", value="This is a quote"),
+            ],
+        )
+
+        self.assertEqual(node, expected)
