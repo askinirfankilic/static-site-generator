@@ -327,3 +327,13 @@ print("Hello, world!")
         block = "> This is a test string."
         block_type = helper.block_to_block_type(block)
         self.assertEqual(block_type, helper.block_type_quote)
+
+    def test_block_to_block_type_unordered_list(self):
+        block = "- This is a test string.\n- This is another test string."
+        block_type = helper.block_to_block_type(block)
+        self.assertEqual(block_type, helper.block_type_unordered_list)
+
+    def test_block_to_block_type_unordered_list_mistake(self):
+        block = "* This is a test string.\n*This is another test string."
+        block_type = helper.block_to_block_type(block)
+        self.assertNotEqual(block_type, helper.block_type_unordered_list)

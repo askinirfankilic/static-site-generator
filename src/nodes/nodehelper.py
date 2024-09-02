@@ -198,4 +198,9 @@ def block_to_block_type(block: str) -> str:
     if re.match(r"^> ", block, re.MULTILINE):
         return block_type_quote
 
+    lines = block.splitlines()
+
+    if all(re.match(r"^[-\*] ", line, re.MULTILINE) for line in lines):
+        return block_type_unordered_list
+
     return block_type_paragraph
