@@ -253,21 +253,38 @@ def generate_html_node_from_block(block: str, block_type: str) -> HtmlNode:
 
 def paragraph_to_html_node(value: str) -> HtmlNode:
     text_nodes = text_to_text_node(value)
-    html_nodes = [text_node_to_html_node(n) for n in text_nodes]
-    block_html = HtmlNode(tag="p", value=value, children=html_nodes)
+    html_nodes = generate_html_nodes(text_nodes)
+
+    if len(html_nodes) == 0:
+        block_html = HtmlNode(tag="p", value=value)
+    else:
+        block_html = HtmlNode(tag="p", value=value, children=html_nodes)
+
     return block_html
 
 
+def generate_html_nodes(text_nodes: list[TextNode]) -> list[HtmlNode]:
+    html_nodes = []
+
+    for n in text_nodes:
+        html_node = text_node_to_html_node(n)
+        if html_node.tag is None or "":
+            continue
+        html_nodes.append(html_node)
+
+    return html_nodes
+
+
 def heading_to_html_node(value: str, indicator: str) -> HtmlNode:
-    text_nodes = text_to_text_node(value)
     heading_size = indicator.count("#")
     if heading_size == 0:
         raise ValueError("Invalid heading size")
 
-    if len(text_nodes) == 1:
+    text_nodes = text_to_text_node(value)
+    html_nodes = generate_html_nodes(text_nodes)
+    if len(html_nodes) == 0:
         block_html = HtmlNode(tag=f"h{heading_size}", value=value)
     else:
-        html_nodes = [text_node_to_html_node(n) for n in text_nodes]
         block_html = HtmlNode(tag=f"h{heading_size}", value=value, children=html_nodes)
 
     return block_html
@@ -275,8 +292,8 @@ def heading_to_html_node(value: str, indicator: str) -> HtmlNode:
 
 def quote_to_html_node(value: str) -> HtmlNode:
     text_nodes = text_to_text_node(value)
-    html_nodes = [text_node_to_html_node(n) for n in text_nodes]
-    if len(text_nodes) == 1:
+    html_nodes = generate_html_nodes(text_nodes)
+    if len(html_nodes) == 0:
         block_html = HtmlNode(tag="blockquote", value=value)
     else:
         block_html = HtmlNode(tag="blockquote", value=value, children=html_nodes)
@@ -285,9 +302,9 @@ def quote_to_html_node(value: str) -> HtmlNode:
 
 def code_to_html_node(value: str) -> HtmlNode:
     text_nodes = text_to_text_node(value)
-    html_nodes = [text_node_to_html_node(n) for n in text_nodes]
+    html_nodes = generate_html_nodes(text_nodes)
     code_html = None
-    if len(text_nodes) == 1:
+    if len(html_nodes) == 0:
         code_html = HtmlNode(tag="code", value=value)
     else:
         code_html = HtmlNode(tag="code", value=value, children=html_nodes)
@@ -299,11 +316,15 @@ def code_to_html_node(value: str) -> HtmlNode:
 def unordered_list_to_html_node(value: str) -> HtmlNode:
     children = []
     lines = value.splitlines()
-
     for line in lines:
         text_nodes = text_to_text_node(line)
-        html_nodes = [text_node_to_html_node(n) for n in text_nodes]
-        li_html = HtmlNode(tag="li", value=line, children=html_nodes)
+        html_nodes = generate_html_nodes(text_nodes)
+
+        if len(html_nodes) == 0:
+            li_html = HtmlNode(tag="li", value=line)
+        else:
+            li_html = HtmlNode(tag="li", value=line, children=html_nodes)
+
         children.append(li_html)
 
     block_html = HtmlNode(tag="ul", value=None, children=children)
@@ -316,8 +337,13 @@ def ordered_list_to_html_node(value: str) -> HtmlNode:
 
     for line in lines:
         text_nodes = text_to_text_node(line)
-        html_nodes = [text_node_to_html_node(n) for n in text_nodes]
-        li_html = HtmlNode(tag="li", value=line, children=html_nodes)
+        html_nodes = generate_html_nodes(text_nodes)
+
+        if len(html_nodes) == 0:
+            li_html = HtmlNode(tag="li", value=line)
+        else:
+            li_html = HtmlNode(tag="li", value=line, children=html_nodes)
+
         children.append(li_html)
 
     block_html = HtmlNode(tag="ol", value=None, children=children)

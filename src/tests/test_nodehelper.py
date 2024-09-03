@@ -417,3 +417,49 @@ for i in something: print(i)
         )
 
         self.assertEqual(node, expected)
+
+    def test_markdown_to_html_node_unordered_list(self):
+        markdown = """
+- This is a list item
+- Another
+- And Another
+"""
+        expected = HtmlNode(
+            tag="div",
+            children=[
+                HtmlNode(
+                    tag="ul",
+                    children=[
+                        HtmlNode(tag="li", value="This is a list item"),
+                        HtmlNode(tag="li", value="Another"),
+                        HtmlNode(tag="li", value="And Another"),
+                    ],
+                ),
+            ],
+        )
+
+        node = helper.markdown_to_html_node(markdown)
+        self.assertEqual(node, expected)
+
+    def test_markdown_to_html_node_ordered_list(self):
+        markdown = """
+1. This is a list item
+2. Another
+3. And Another
+"""
+        expected = HtmlNode(
+            tag="div",
+            children=[
+                HtmlNode(
+                    tag="ol",
+                    children=[
+                        HtmlNode(tag="li", value="This is a list item"),
+                        HtmlNode(tag="li", value="Another"),
+                        HtmlNode(tag="li", value="And Another"),
+                    ],
+                ),
+            ],
+        )
+
+        node = helper.markdown_to_html_node(markdown)
+        self.assertEqual(node, expected)

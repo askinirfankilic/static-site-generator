@@ -44,7 +44,8 @@ class TestHtmlNode(unittest.TestCase):
     def test_repr_method(self):
         node = HtmlNode(tag="div", value="Content", props={"class": "container"})
         self.assertEqual(
-            repr(node), "HtmlNode(div,\nContent,\nNone,\n{'class': 'container'})"
+            repr(node),
+            "HtmlNode(tag=div,\nvalue=Content,\nchildren=None,\nprops={'class': 'container'})",
         )
 
 
