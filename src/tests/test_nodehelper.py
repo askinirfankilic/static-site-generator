@@ -463,3 +463,32 @@ for i in something: print(i)
 
         node = helper.markdown_to_html_node(markdown)
         self.assertEqual(node, expected)
+
+    def test_markdown_to_html_node_mixed(self):
+        markdown = """
+# This is a heading
+
+> Some quotes from someone
+
+1. This is a list item
+2. Another
+3. And Another
+"""
+        expected = HtmlNode(
+            tag="div",
+            children=[
+                HtmlNode(tag="h1", value="This is a heading"),
+                HtmlNode(tag="blockquote", value="Some quotes from someone"),
+                HtmlNode(
+                    tag="ol",
+                    children=[
+                        HtmlNode(tag="li", value="This is a list item"),
+                        HtmlNode(tag="li", value="Another"),
+                        HtmlNode(tag="li", value="And Another"),
+                    ],
+                ),
+            ],
+        )
+
+        node = helper.markdown_to_html_node(markdown)
+        self.assertEqual(node, expected)
