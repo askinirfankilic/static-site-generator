@@ -23,3 +23,6 @@ class LeafNode(HtmlNode):
             html = f"<{self.tag}{attributes}>{self.value}</{self.tag}>"
 
         return html
+
+    def __repr__(self) -> str:
+        return f"LeafNode(tag={self.tag},\nvalue={self.value},\nchildren={self.children},\nprops={self.props})"

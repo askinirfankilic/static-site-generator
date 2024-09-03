@@ -255,10 +255,13 @@ def paragraph_to_html_node(value: str) -> HtmlNode:
     text_nodes = text_to_text_node(value)
     html_nodes = generate_html_nodes(text_nodes)
 
-    if len(html_nodes) == 0:
-        block_html = HtmlNode(tag="p", value=value)
-    else:
-        block_html = HtmlNode(tag="p", value=value, children=html_nodes)
+    block_html = HtmlNode(
+        tag="p",
+        children=[
+            LeafNode(tag=node.tag, value=node.value, props=node.props)
+            for node in html_nodes
+        ],
+    )
 
     return block_html
 
@@ -268,7 +271,7 @@ def generate_html_nodes(text_nodes: list[TextNode]) -> list[HtmlNode]:
 
     for n in text_nodes:
         html_node = text_node_to_html_node(n)
-        if html_node.tag is None or "":
+        if html_node.value is None or "":
             continue
         html_nodes.append(html_node)
 
@@ -282,10 +285,14 @@ def heading_to_html_node(value: str, indicator: str) -> HtmlNode:
 
     text_nodes = text_to_text_node(value)
     html_nodes = generate_html_nodes(text_nodes)
-    if len(html_nodes) == 0:
-        block_html = HtmlNode(tag=f"h{heading_size}", value=value)
-    else:
-        block_html = HtmlNode(tag=f"h{heading_size}", value=value, children=html_nodes)
+
+    block_html = HtmlNode(
+        tag=f"h{heading_size}",
+        children=[
+            LeafNode(tag=node.tag, value=node.value, props=node.props)
+            for node in html_nodes
+        ],
+    )
 
     return block_html
 
@@ -293,21 +300,25 @@ def heading_to_html_node(value: str, indicator: str) -> HtmlNode:
 def quote_to_html_node(value: str) -> HtmlNode:
     text_nodes = text_to_text_node(value)
     html_nodes = generate_html_nodes(text_nodes)
-    if len(html_nodes) == 0:
-        block_html = HtmlNode(tag="blockquote", value=value)
-    else:
-        block_html = HtmlNode(tag="blockquote", value=value, children=html_nodes)
+
+    block_html = HtmlNode(
+        tag="blockquote",
+        children=[
+            LeafNode(tag=node.tag, value=node.value, props=node.props)
+            for node in html_nodes
+        ],
+    )
     return block_html
 
 
 def code_to_html_node(value: str) -> HtmlNode:
     text_nodes = text_to_text_node(value)
     html_nodes = generate_html_nodes(text_nodes)
-    code_html = None
-    if len(html_nodes) == 0:
-        code_html = HtmlNode(tag="code", value=value)
-    else:
-        code_html = HtmlNode(tag="code", value=value, children=html_nodes)
+
+    code_html = HtmlNode(
+        tag="code",
+        children=[LeafNode(value=node.value, props=node.props) for node in html_nodes],
+    )
 
     pre_parent = HtmlNode(tag="pre", children=[code_html])
     return pre_parent
@@ -320,11 +331,12 @@ def unordered_list_to_html_node(value: str) -> HtmlNode:
         text_nodes = text_to_text_node(line)
         html_nodes = generate_html_nodes(text_nodes)
 
-        if len(html_nodes) == 0:
-            li_html = HtmlNode(tag="li", value=line)
-        else:
-            li_html = HtmlNode(tag="li", value=line, children=html_nodes)
-
+        li_html = HtmlNode(
+            tag="li",
+            children=[
+                LeafNode(value=node.value, props=node.props) for node in html_nodes
+            ],
+        )
         children.append(li_html)
 
     block_html = HtmlNode(tag="ul", value=None, children=children)
@@ -339,10 +351,12 @@ def ordered_list_to_html_node(value: str) -> HtmlNode:
         text_nodes = text_to_text_node(line)
         html_nodes = generate_html_nodes(text_nodes)
 
-        if len(html_nodes) == 0:
-            li_html = HtmlNode(tag="li", value=line)
-        else:
-            li_html = HtmlNode(tag="li", value=line, children=html_nodes)
+        li_html = HtmlNode(
+            tag="li",
+            children=[
+                LeafNode(value=node.value, props=node.props) for node in html_nodes
+            ],
+        )
 
         children.append(li_html)
 

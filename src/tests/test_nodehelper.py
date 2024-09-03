@@ -1,5 +1,3 @@
-# write some unit tests for the nodehelper module
-from sys import exception
 import unittest
 
 from src.nodes.htmlnode import HtmlNode
@@ -364,15 +362,61 @@ print("Hello, world!")
         self.assertEqual(
             node,
             HtmlNode(
-                tag="div", children=[HtmlNode(tag="h1", value="This is a heading")]
+                tag="div",
+                children=[
+                    HtmlNode(tag="h1", children=[LeafNode(value="This is a heading")])
+                ],
+            ),
+        )
+
+    def test_markdown_to_html_node_heading_inline_block(self):
+        markdown = """
+## This is a **bold** heading some *italic*
+"""
+        node = helper.markdown_to_html_node(markdown)
+        self.assertEqual(
+            node,
+            HtmlNode(
+                tag="div",
+                children=[
+                    HtmlNode(
+                        tag="h2",
+                        children=[
+                            LeafNode(value="This is a "),
+                            LeafNode(tag="b", value="bold"),
+                            LeafNode(value=" heading some "),
+                            LeafNode(tag="i", value="italic"),
+                        ],
+                    )
+                ],
+            ),
+        )
+
+    def test_markdown_to_html_node_paragraph(self):
+        markdown = """
+This is a paragraph\nNew line of paragraph.
+"""
+        node = helper.markdown_to_html_node(markdown)
+        self.assertEqual(
+            node,
+            HtmlNode(
+                tag="div",
+                children=[
+                    HtmlNode(
+                        tag="p",
+                        children=[
+                            LeafNode(
+                                value="This is a paragraph\nNew line of paragraph."
+                            )
+                        ],
+                    )
+                ],
             ),
         )
 
     def test_markdown_to_html_node_quote(self):
         markdown = """
 > This is a quote\nThis is the other line
-
-## This is a heading but little bit smaller
 """
         node = helper.markdown_to_html_node(markdown)
         self.assertEqual(
@@ -382,10 +426,9 @@ print("Hello, world!")
                 children=[
                     HtmlNode(
                         tag="blockquote",
-                        value="This is a quote\nThis is the other line",
-                    ),
-                    HtmlNode(
-                        tag="h2", value="This is a heading but little bit smaller"
+                        children=[
+                            LeafNode(value="This is a quote\nThis is the other line")
+                        ],
                     ),
                 ],
             ),
@@ -395,11 +438,6 @@ print("Hello, world!")
         markdown = """```
 for i in something: print(i)
 ```
-
-# This is a header
-
-
-> This is a quote
 """
         node = helper.markdown_to_html_node(markdown)
         expected = HtmlNode(
@@ -408,11 +446,14 @@ for i in something: print(i)
                 HtmlNode(
                     tag="pre",
                     children=[
-                        HtmlNode(tag="code", value="\nfor i in something: print(i)\n"),
+                        HtmlNode(
+                            tag="code",
+                            children=[
+                                LeafNode(value="\nfor i in something: print(i)\n")
+                            ],
+                        ),
                     ],
                 ),
-                HtmlNode(tag="h1", value="This is a header"),
-                HtmlNode(tag="blockquote", value="This is a quote"),
             ],
         )
 
@@ -430,9 +471,11 @@ for i in something: print(i)
                 HtmlNode(
                     tag="ul",
                     children=[
-                        HtmlNode(tag="li", value="This is a list item"),
-                        HtmlNode(tag="li", value="Another"),
-                        HtmlNode(tag="li", value="And Another"),
+                        HtmlNode(
+                            tag="li", children=[LeafNode(value="This is a list item")]
+                        ),
+                        HtmlNode(tag="li", children=[LeafNode(value="Another")]),
+                        HtmlNode(tag="li", children=[LeafNode(value="And Another")]),
                     ],
                 ),
             ],
@@ -453,9 +496,11 @@ for i in something: print(i)
                 HtmlNode(
                     tag="ol",
                     children=[
-                        HtmlNode(tag="li", value="This is a list item"),
-                        HtmlNode(tag="li", value="Another"),
-                        HtmlNode(tag="li", value="And Another"),
+                        HtmlNode(
+                            tag="li", children=[LeafNode(value="This is a list item")]
+                        ),
+                        HtmlNode(tag="li", children=[LeafNode(value="Another")]),
+                        HtmlNode(tag="li", children=[LeafNode(value="And Another")]),
                     ],
                 ),
             ],
@@ -468,7 +513,7 @@ for i in something: print(i)
         markdown = """
 # This is a heading
 
-> Some quotes from someone
+> Some quotes from with **something bold** someone
 
 1. This is a list item
 2. Another
@@ -477,14 +522,23 @@ for i in something: print(i)
         expected = HtmlNode(
             tag="div",
             children=[
-                HtmlNode(tag="h1", value="This is a heading"),
-                HtmlNode(tag="blockquote", value="Some quotes from someone"),
+                HtmlNode(tag="h1", children=[LeafNode(value="This is a heading")]),
+                HtmlNode(
+                    tag="blockquote",
+                    children=[
+                        LeafNode(value="Some quotes from with "),
+                        LeafNode(tag="b", value="something bold"),
+                        LeafNode(value=" someone"),
+                    ],
+                ),
                 HtmlNode(
                     tag="ol",
                     children=[
-                        HtmlNode(tag="li", value="This is a list item"),
-                        HtmlNode(tag="li", value="Another"),
-                        HtmlNode(tag="li", value="And Another"),
+                        HtmlNode(
+                            tag="li", children=[LeafNode(value="This is a list item")]
+                        ),
+                        HtmlNode(tag="li", children=[LeafNode(value="Another")]),
+                        HtmlNode(tag="li", children=[LeafNode(value="And Another")]),
                     ],
                 ),
             ],
