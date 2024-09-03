@@ -3,9 +3,7 @@ from src.nodes.leafnode import LeafNode
 from src.nodes.parentnode import ParentNode
 
 
-# create test class for parent node with arguments with names
 class TestParentNode(unittest.TestCase):
-    # generate unit tests for the ParentNode class but add arguments with names in node constructors
     def test_initialization_with_all_params(self):
         node = ParentNode(
             tag="div",

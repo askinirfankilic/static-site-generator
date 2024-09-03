@@ -4,7 +4,6 @@ from src.nodes.textnode import TextNode
 
 
 class TestTextNode(unittest.TestCase):
-    # generate unit tests for the TextNode class but add arguments with names in node constructors
     def test_simple_text_node(self):
         node = TextNode(text="Hello, World!", text_type="text")
         self.assertEqual(node.text, "Hello, World!")

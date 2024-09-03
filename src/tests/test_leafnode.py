@@ -4,7 +4,6 @@ from src.nodes.leafnode import LeafNode
 
 
 class TestLeafNode(unittest.TestCase):
-    # generate unit tests for the LeafNode class but add argument name to constructor
     def test_simple_leaf_node(self):
         leaf = LeafNode(value="Hello, World!")
         self.assertEqual(leaf.to_html(), "Hello, World!")
