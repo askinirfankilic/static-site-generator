@@ -546,3 +546,14 @@ for i in something: print(i)
 
         node = helper.markdown_to_html_node(markdown)
         self.assertEqual(node, expected)
+
+    def test_extract_title(self):
+        markdown = "# This is a header\n> This is a quote"
+        expected = "This is a header"
+        target = helper.extract_title(markdown)
+        self.assertEqual(target, expected)
+
+    def test_extract_title_exception(self):
+        markdown = "> This is a quote"
+        with self.assertRaises(Exception):
+            helper.extract_title(markdown)

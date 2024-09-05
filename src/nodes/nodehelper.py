@@ -403,3 +403,13 @@ def remove_block_type_identifier(block: str, block_type: str) -> str:
             return block
         case _:  # assumed as paragraph
             raise Exception("Invalid block type")
+
+
+def extract_title(markdown: str):
+    lines = markdown.splitlines()
+    for line in lines:
+        if re.match(r"^#{1,6} ", line) is not None:
+            ret_val = re.sub(r"^#{1,6} ", "", line, count=1)
+            return ret_val.strip()
+
+    raise Exception("can't find title to extract")
