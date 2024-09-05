@@ -1,6 +1,8 @@
 import re
+from src import iohelper
 from src.nodes.htmlnode import HtmlNode
 from src.nodes.leafnode import LeafNode
+from src.nodes.parentnode import ParentNode
 from src.nodes.textnode import (
     TextNode,
     text_type_text,
@@ -413,3 +415,27 @@ def extract_title(markdown: str):
             return ret_val.strip()
 
     raise Exception("can't find title to extract")
+
+
+def generate_page(from_path, template_path, dest_path):
+    print(f"generating page from {from_path} to {dest_path} using {template_path}")
+    markdown = ""
+    template = ""
+    with open(from_path, "r") as file:
+        markdown = file.read()
+        print(markdown)
+
+    print("------------------------")
+    with open(template_path, "r") as file:
+        template = file.read()
+        print(template)
+
+    print("------------------------")
+    html = markdown_to_html_node(markdown)
+    html_str = html.to_html()
+    print(html_str)
+    title = extract_title(markdown)
+
+    template = template.replace("{{ Title }}", title, 1)
+    template = template.replace("{{ Content }}", html_str, 1)
+    print(template)

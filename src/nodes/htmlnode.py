@@ -14,8 +14,18 @@ class HtmlNode:
         self.children = children
         self.props = props
 
-    def to_html(self):
-        raise NotImplementedError()
+    def to_html(self) -> str:
+        html = ""
+        if self.tag is not None:
+            attributes = self.props_to_html()
+            if self.value is None:
+                html = f"<{self.tag}{attributes}>{"".join([child.to_html() for child in self.children])}</{self.tag}>"
+            else:
+                html = f"<{self.tag}{attributes}>{self.value}{"".join([child.to_html() for child in self.children])}</{self.tag}>"
+
+            return html
+
+        raise ValueError("all html nodes should have a tag")
 
     def props_to_html(self) -> str:
         props = self.props
