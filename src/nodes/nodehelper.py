@@ -1,4 +1,5 @@
 import re
+import os
 from src import iohelper
 from src.nodes.htmlnode import HtmlNode
 from src.nodes.leafnode import LeafNode
@@ -336,7 +337,8 @@ def unordered_list_to_html_node(value: str) -> HtmlNode:
         li_html = HtmlNode(
             tag="li",
             children=[
-                LeafNode(value=node.value, props=node.props) for node in html_nodes
+                LeafNode(tag=node.tag, value=node.value, props=node.props)
+                for node in html_nodes
             ],
         )
         children.append(li_html)
@@ -356,7 +358,8 @@ def ordered_list_to_html_node(value: str) -> HtmlNode:
         li_html = HtmlNode(
             tag="li",
             children=[
-                LeafNode(value=node.value, props=node.props) for node in html_nodes
+                LeafNode(tag=node.tag, value=node.value, props=node.props)
+                for node in html_nodes
             ],
         )
 
@@ -423,19 +426,43 @@ def generate_page(from_path, template_path, dest_path):
     template = ""
     with open(from_path, "r") as file:
         markdown = file.read()
-        print(markdown)
 
-    print("------------------------")
     with open(template_path, "r") as file:
         template = file.read()
-        print(template)
 
-    print("------------------------")
     html = markdown_to_html_node(markdown)
     html_str = html.to_html()
-    print(html_str)
     title = extract_title(markdown)
 
     template = template.replace("{{ Title }}", title, 1)
     template = template.replace("{{ Content }}", html_str, 1)
-    print(template)
+
+    with open(dest_path, "w") as f:
+        f.write(template)
+
+
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+    if not iohelper.is_valid_dir(dir_path_content):
+        raise Exception(f"not valid directior {dir_path_content}")
+
+    if not iohelper.is_valid_dir(dest_dir_path):
+        raise Exception(f"not valid directior {dest_dir_path}")
+
+    iohelper.delete_all_under_directory(dest_dir_path)
+    iohelper.move(iohelper.get_path_static(), iohelper.get_path_public())
+
+    contents = iohelper.get_contents(dir_path_content)
+    if contents is None:
+        print("no content")
+        return
+
+    markdowns = [
+        content for content in contents if os.path.splitext(content)[1] == ".md"
+    ]
+    markdowns = [md.replace(dir_path_content, "") for md in markdowns]
+
+    for md in markdowns:
+        from_path = dir_path_content + md
+        dest_path = dest_dir_path + md.replace(".md", ".html")
+        iohelper.ensure_dir_exists(dest_path)
+        generate_page(from_path, template_path, dest_path)

@@ -64,6 +64,13 @@ def get_path_static() -> str:
     return path
 
 
+def get_path_content() -> str:
+    path = get_path("../content/")
+    if path is None:
+        raise Exception("path is not valid")
+    return path
+
+
 def get_path(ext: str) -> str | None:
     dir_path = os.path.dirname(__file__)
     path = os.path.join(dir_path, ext)
@@ -97,6 +104,10 @@ def get_contents_recursive(path: str, recursive_func) -> list[str] | None:
 def get_to_path(from_path: str) -> str:
     li = from_path.rsplit("static", maxsplit=1)
     return "public".join(li)
+
+
+def get_contents(path: str) -> list[str] | None:
+    return get_contents_recursive(path, _func_recursive_content)
 
 
 def _func_recursive_content(path, contents):
